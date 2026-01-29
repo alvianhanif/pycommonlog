@@ -197,8 +197,7 @@ This will format the trace as a code block in the alert message.
 ## Testing
 
 ```bash
-cd python
-PYTHONPATH=.. python -m unittest test_commonlog.py
+python -m pytest test_commonlog.py
 ```
 
 ## API Reference
