@@ -2,6 +2,7 @@
 
 [![CI](https://github.com/alvianhanif/pycommonlog/actions/workflows/ci.yml/badge.svg)](https://github.com/alvianhanif/pycommonlog/actions/workflows/ci.yml)
 [![PyPI version](https://badge.fury.io/py/pycommonlog.svg)](https://badge.fury.io/py/pycommonlog)
+[![Python versions](https://img.shields.io/pypi/pyversions/pycommonlog)](https://pypi.org/project/pycommonlog/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 A unified logging and alerting library for Python, supporting Slack and Lark integrations via WebClient and Webhook. Features configurable providers, alert levels, and file attachment support.
