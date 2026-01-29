@@ -1,7 +1,7 @@
 # pycommonlog
 
 [![CI](https://github.com/alvianhanif/pycommonlog/actions/workflows/ci.yml/badge.svg)](https://github.com/alvianhanif/pycommonlog/actions/workflows/ci.yml)
-[![PyPI version](https://badge.fury.io/py/pycommonlog.svg)](https://badge.fury.io/py/pycommonlog)
+[![PyPI version](https://img.shields.io/pypi/v/pycommonlog)](https://pypi.org/project/pycommonlog/)
 [![Python versions](https://img.shields.io/pypi/pyversions/pycommonlog)](https://pypi.org/project/pycommonlog/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
