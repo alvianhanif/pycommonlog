@@ -31,8 +31,10 @@ config = Config(
     slack_token="xoxb-your-slack-token", # dedicated Slack token
     lark_token=LarkToken(app_id="your-app-id", app_secret="your-app-secret"), # dedicated Lark token
     channel="your_lark_channel_id",
-    redis_host="localhost", # required for Lark
-    redis_port="6379",      # required for Lark
+    provider_config={
+        "redis_host": "localhost",  # required for Lark
+        "redis_port": 6379,         # required for Lark
+    }
 )
 logger = commonlog(config)
 

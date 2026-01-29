@@ -37,7 +37,7 @@ class LarkToken:
         self.app_secret = app_secret
 
 class Config:
-    def __init__(self, provider, send_method, token=None, slack_token=None, lark_token=None, channel=None, channel_resolver=None, service_name=None, environment=None, redis_host=None, redis_port=None, debug=False):
+    def __init__(self, provider, send_method, token=None, slack_token=None, lark_token=None, channel=None, channel_resolver=None, service_name=None, environment=None, provider_config=None, debug=False):
         self.provider = provider
         self.send_method = send_method
         self.token = token
@@ -47,8 +47,7 @@ class Config:
         self.channel_resolver = channel_resolver
         self.service_name = service_name
         self.environment = environment
-        self.redis_host = redis_host
-        self.redis_port = redis_port
+        self.provider_config = provider_config or {}
         self.debug = debug
 
 class Provider(ABC):
