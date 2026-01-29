@@ -5,6 +5,8 @@ def get_latest_git_tag():
     try:
         tag = subprocess.check_output(["git", "describe", "--tags", "--abbrev=0"]).decode().strip()
         # Clean up invalid version formats
+        if tag.startswith('v'):
+            tag = tag[1:]  # Remove leading 'v'
         if '-v' in tag:
             # Extract base version from tags like 0.1.7-v24
             base_version = tag.split('-v')[0]
