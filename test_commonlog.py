@@ -4,8 +4,8 @@ sys.path.insert(0, os.path.dirname(__file__))
 
 import unittest
 from unittest.mock import Mock, patch
-from log_types import Config, SendMethod, AlertLevel, Attachment
-from logger import commonlog
+from pycommonlog.log_types import Config, SendMethod, AlertLevel, Attachment
+from pycommonlog.logger import commonlog
 
 class Testcommonlog(unittest.TestCase):
     def test_init(self):

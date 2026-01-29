@@ -1,4 +1,4 @@
-# commonlog (Python)
+# pycommonlog
 
 A unified logging and alerting library for Python, supporting Slack and Lark integrations via WebClient and Webhook. Features configurable providers, alert levels, and file attachment support.
 
@@ -7,16 +7,16 @@ A unified logging and alerting library for Python, supporting Slack and Lark int
 Install via pip:
 
 ```bash
-pip install commonlog
+pip install pycommonlog
 ```
 
-Or copy the `python/` directory to your project.
+Or copy the `pycommonlog/` directory to your project.
 
 
 ## Usage
 
 ```python
-from python import commonlog, Config, SendMethod, AlertLevel, Attachment, LarkToken
+from pycommonlog import commonlog, Config, SendMethod, AlertLevel, Attachment, LarkToken
 
 # Configure logger
 config = Config(
