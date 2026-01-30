@@ -5,6 +5,9 @@ import requests
 import json
 import sys
 import os
+import time
+import threading
+from typing import Dict, Optional, Tuple
 
 # Add directories to path for imports
 _current_dir = os.path.dirname(os.path.abspath(__file__))
@@ -16,6 +19,53 @@ if _current_dir not in sys.path:
 
 from log_types import SendMethod, Provider, debug_log
 from redis_client import get_redis_client, RedisConfigError
+
+# In-memory cache for Lark tokens when Redis is not available
+class InMemoryTokenCache:
+    def __init__(self):
+        self._cache: Dict[str, Tuple[str, float]] = {}  # key -> (token, expiry_timestamp)
+        self._lock = threading.RLock()
+        # Clean up expired tokens every 5 minutes
+        self._cleanup_thread = threading.Thread(target=self._cleanup_worker, daemon=True)
+        self._cleanup_thread.start()
+
+    def get(self, key: str) -> Optional[str]:
+        with self._lock:
+            if key in self._cache:
+                token, expiry = self._cache[key]
+                if time.time() < expiry:
+                    return token
+                else:
+                    # Token expired, remove it
+                    del self._cache[key]
+            return None
+
+    def set(self, key: str, token: str, expire_seconds: int):
+        with self._lock:
+            expiry = time.time() + expire_seconds
+            self._cache[key] = (token, expiry)
+
+    def _cleanup_worker(self):
+        """Background thread to clean up expired tokens"""
+        while True:
+            time.sleep(300)  # Clean up every 5 minutes
+            self._cleanup_expired()
+
+    def _cleanup_expired(self):
+        """Remove expired tokens from cache"""
+        with self._lock:
+            current_time = time.time()
+            expired_keys = [
+                key for key, (_, expiry) in self._cache.items()
+                if current_time >= expiry
+            ]
+            for key in expired_keys:
+                del self._cache[key]
+            if expired_keys:
+                debug_log(None, f"Cleaned up {len(expired_keys)} expired Lark tokens from memory cache")
+
+# Global in-memory cache instance
+_memory_cache = InMemoryTokenCache()
 
 class LarkProvider(Provider):
     def send_to_channel(self, level, message, attachment, config, channel):
@@ -32,44 +82,59 @@ class LarkProvider(Provider):
         key = f"commonlog_lark_token:{app_id}:{app_secret}"
         try:
             client = get_redis_client(config)
+            expire_seconds = expire - 600
+            if expire_seconds <= 0:
+                expire_seconds = 60
+            client.setex(key, expire_seconds, token)
+            debug_log(config, f"Lark token cached in Redis for key: {key}")
         except RedisConfigError:
-            # Redis not configured, skip caching (optional feature)
-            debug_log(config, f"Lark token caching disabled - Redis not configured")
-            return
-        expire_seconds = expire - 600
-        if expire_seconds <= 0:
-            expire_seconds = 60
-        client.setex(key, expire_seconds, token)
+            # Fallback to in-memory cache
+            expire_seconds = expire - 600
+            if expire_seconds <= 0:
+                expire_seconds = 60
+            _memory_cache.set(key, token, expire_seconds)
+            debug_log(config, f"Lark token cached in memory for key: {key}")
 
     def get_cached_lark_token(self, config, app_id, app_secret):
         key = f"commonlog_lark_token:{app_id}:{app_secret}"
         try:
             client = get_redis_client(config)
+            token = client.get(key)
+            if token:
+                debug_log(config, f"Lark token retrieved from Redis for key: {key}")
+            return token
         except RedisConfigError:
-            # Redis not configured, return None (no cached token)
-            debug_log(config, f"Lark token caching disabled - Redis not configured")
-            return None
-        return client.get(key)
+            # Fallback to in-memory cache
+            token = _memory_cache.get(key)
+            if token:
+                debug_log(config, f"Lark token retrieved from memory for key: {key}")
+            return token
 
     def cache_chat_id(self, config, channel_name, chat_id):
         key = f"commonlog_lark_chat_id:{config.environment}:{channel_name}"
         try:
             client = get_redis_client(config)
+            client.set(key, chat_id)  # No expiry
+            debug_log(config, f"Lark chat ID cached in Redis for key: {key}")
         except RedisConfigError:
-            # Redis not configured, skip caching (optional feature)
-            debug_log(config, f"Lark chat ID caching disabled - Redis not configured")
-            return
-        client.set(key, chat_id)  # No expiry
+            # Fallback to in-memory cache (no expiry for chat IDs)
+            _memory_cache.set(key, chat_id, 86400 * 30)  # 30 days expiry
+            debug_log(config, f"Lark chat ID cached in memory for key: {key}")
 
     def get_cached_chat_id(self, config, channel_name):
         key = f"commonlog_lark_chat_id:{config.environment}:{channel_name}"
         try:
             client = get_redis_client(config)
+            chat_id = client.get(key)
+            if chat_id:
+                debug_log(config, f"Lark chat ID retrieved from Redis for key: {key}")
+            return chat_id
         except RedisConfigError:
-            # Redis not configured, return None (no cached chat ID)
-            debug_log(config, f"Lark chat ID caching disabled - Redis not configured")
-            return None
-        return client.get(key)
+            # Fallback to in-memory cache
+            chat_id = _memory_cache.get(key)
+            if chat_id:
+                debug_log(config, f"Lark chat ID retrieved from memory for key: {key}")
+            return chat_id
 
     def get_tenant_access_token(self, config, app_id, app_secret):
         cached = self.get_cached_lark_token(config, app_id, app_secret)
