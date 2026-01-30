@@ -23,7 +23,7 @@ def get_redis_client(config):
         try:
             from redis.cluster import RedisCluster
         except ImportError:
-            raise RedisConfigError("redis-py-cluster is required for cluster mode. Install with: pip install redis-py-cluster")
+            raise RedisConfigError("Redis cluster support is not available. Please upgrade redis package to version 4.0.0 or later")
 
         # For cluster mode, we need to handle startup nodes differently
         # ElastiCache cluster mode provides a single endpoint

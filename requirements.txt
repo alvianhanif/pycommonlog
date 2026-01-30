@@ -1,3 +1,2 @@
 requests
 redis>=4.0.0
-redis-py-cluster>=2.1.3
