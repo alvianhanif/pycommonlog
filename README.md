@@ -100,6 +100,8 @@ config = Config(
 
 When using Lark, the tenant_access_token is cached in Redis. The expiry is set dynamically from the API response minus 10 minutes. You must set `redis_host` and `redis_port` in your config.
 
+See [REDIS_SETUP.md](REDIS_SETUP.md) for detailed Redis setup instructions including AWS ElastiCache configuration.
+
 ## Channel Mapping
 
 You can configure different channels for different alert levels using a channel resolver:
