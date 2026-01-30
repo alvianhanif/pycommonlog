@@ -89,5 +89,4 @@ class TestGlobalCache(unittest.TestCase):
 
 
 if __name__ == '__main__':
-    unittest.main()</content>
-<parameter name="filePath">/Users/pid-alvian/Documents/alvian/pycommonlog/pycommonlog/cache/test_cache.py
+    unittest.main()
