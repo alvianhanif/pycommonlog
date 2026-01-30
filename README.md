@@ -25,13 +25,13 @@ from pycommonlog import commonlog, Config, SendMethod, AlertLevel, Attachment, L
 
 # Configure logger
 config = Config(
-    provider="lark", # or "slack"
     send_method=SendMethod.WEBCLIENT,
-    token="app_id++app_secret", # for Lark, use "app_id++app_secret" format
-    slack_token="xoxb-your-slack-token", # dedicated Slack token
-    lark_token=LarkToken(app_id="your-app-id", app_secret="your-app-secret"), # dedicated Lark token
     channel="your_lark_channel_id",
     provider_config={
+        "provider": "lark", # or "slack"
+        "token": "app_id++app_secret", # for Lark, use "app_id++app_secret" format
+        "slack_token": "xoxb-your-slack-token", # dedicated Slack token
+        "lark_token": LarkToken(app_id="your-app-id", app_secret="your-app-secret"), # dedicated Lark token
         "redis_host": "localhost",  # required for Lark
         "redis_port": 6379,         # required for Lark
     }
@@ -70,13 +70,13 @@ WebClient uses the full API with authentication tokens:
 
 ```python
 config = Config(
-    provider="lark",
     send_method=SendMethod.WEBCLIENT,
-    token="app_id++app_secret",  # for Lark
-    slack_token="xoxb-your-slack-token",  # for Slack
-    lark_token=LarkToken(app_id="your-app-id", app_secret="your-app-secret"),
     channel="your_channel",
     provider_config={
+        "provider": "lark",  # or "slack"
+        "token": "app_id++app_secret",  # for Lark
+        "slack_token": "xoxb-your-slack-token",  # for Slack
+        "lark_token": LarkToken(app_id="your-app-id", app_secret="your-app-secret"),
         "redis_host": "localhost",  # required for Lark
         "redis_port": 6379,         # required for Lark
     }
@@ -89,10 +89,12 @@ Webhook is simpler and requires only a webhook URL:
 
 ```python
 config = Config(
-    provider="slack",
     send_method=SendMethod.WEBHOOK,
-    token="https://hooks.slack.com/services/YOUR/WEBHOOK/URL",
     channel="optional-channel-override",  # optional
+    provider_config={
+        "provider": "slack",
+        "token": "https://hooks.slack.com/services/YOUR/WEBHOOK/URL",
+    }
 )
 ```
 
@@ -104,11 +106,11 @@ Lark integration requires proper token configuration for authentication. You can
 
 ```python
 config = Config(
-    provider="lark",
     send_method=SendMethod.WEBCLIENT,
-    token="your_app_id++your_app_secret",  # Combined format: app_id++app_secret
     channel="your_channel_id",
     provider_config={
+        "provider": "lark",
+        "token": "your_app_id++your_app_secret",  # Combined format: app_id++app_secret
         "redis_host": "localhost",  # Optional: enables caching
         "redis_port": 6379,
     }
@@ -118,17 +120,15 @@ config = Config(
 #### Method 2: Dedicated Lark Token Object
 
 ```python
-from pycommonlog import LarkToken
-
 config = Config(
-    provider="lark",
     send_method=SendMethod.WEBCLIENT,
-    lark_token=LarkToken(
-        app_id="your_app_id",
-        app_secret="your_app_secret"
-    ),
     channel="your_channel_id",
     provider_config={
+        "provider": "lark",
+        "lark_token": LarkToken(
+            app_id="your_app_id",
+            app_secret="your_app_secret"
+        ),
         "redis_host": "localhost",  # Optional: enables caching
         "redis_port": 6379,
     }
@@ -174,12 +174,14 @@ resolver = DefaultChannelResolver(
 
 # Create config with channel resolver
 config = Config(
-    provider="slack",
     send_method=SendMethod.WEBCLIENT,
-    token="xoxb-your-slack-bot-token",
     channel_resolver=resolver,
     service_name="user-service",
-    environment="production"
+    environment="production",
+    provider_config={
+        "provider": "slack",
+        "token": "xoxb-your-slack-bot-token",
+    }
 )
 
 logger = commonlog(config)
@@ -209,17 +211,27 @@ class CustomResolver(ChannelResolver):
 
 ### Common Settings
 
-- **provider**: `"slack"` or `"lark"`
-- **send_method**: `"webclient"` (token-based authentication)
+- **send_method**: `"webclient"` (token-based authentication) or `"webhook"`
 - **channel**: Target channel or chat ID (used if no resolver)
 - **channel_resolver**: Optional resolver for dynamic channel mapping
 - **service_name**: Name of the service sending alerts
 - **environment**: Environment (dev, staging, production)
 - **debug**: `True` to enable detailed debug logging of all internal processes
 
-### Provider-Specific
+### ProviderConfig Settings
 
-- **token**: API token for WebClient authentication (required)
+All provider-specific configuration is now done via the `provider_config` dict:
+
+- **provider**: `"slack"` or `"lark"`
+- **token**: API token for WebClient authentication or webhook URL for Webhook method
+- **slack_token**: Dedicated Slack token (optional, overrides token for Slack)
+- **lark_token**: `LarkToken` object with app_id and app_secret (optional, overrides token for Lark)
+- **redis_host**: Redis host for Lark caching (optional)
+- **redis_port**: Redis port for Lark caching (optional)
+- **redis_password**: Redis password (optional)
+- **redis_ssl**: Enable SSL for Redis (optional)
+- **redis_cluster_mode**: Enable Redis cluster mode (optional)
+- **redis_db**: Redis database number (optional)
 
 ## Alert Levels
 
