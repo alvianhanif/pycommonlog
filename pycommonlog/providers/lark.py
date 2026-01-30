@@ -32,8 +32,10 @@ class LarkProvider(Provider):
         key = f"commonlog_lark_token:{app_id}:{app_secret}"
         try:
             client = get_redis_client(config)
-        except RedisConfigError as e:
-            raise Exception(f"Redis config error: {e}")
+        except RedisConfigError:
+            # Redis not configured, skip caching (optional feature)
+            debug_log(config, f"Lark token caching disabled - Redis not configured")
+            return
         expire_seconds = expire - 600
         if expire_seconds <= 0:
             expire_seconds = 60
@@ -43,24 +45,30 @@ class LarkProvider(Provider):
         key = f"commonlog_lark_token:{app_id}:{app_secret}"
         try:
             client = get_redis_client(config)
-        except RedisConfigError as e:
-            raise Exception(f"Redis config error: {e}")
+        except RedisConfigError:
+            # Redis not configured, return None (no cached token)
+            debug_log(config, f"Lark token caching disabled - Redis not configured")
+            return None
         return client.get(key)
 
     def cache_chat_id(self, config, channel_name, chat_id):
         key = f"commonlog_lark_chat_id:{config.environment}:{channel_name}"
         try:
             client = get_redis_client(config)
-        except RedisConfigError as e:
-            raise Exception(f"Redis config error: {e}")
+        except RedisConfigError:
+            # Redis not configured, skip caching (optional feature)
+            debug_log(config, f"Lark chat ID caching disabled - Redis not configured")
+            return
         client.set(key, chat_id)  # No expiry
 
     def get_cached_chat_id(self, config, channel_name):
         key = f"commonlog_lark_chat_id:{config.environment}:{channel_name}"
         try:
             client = get_redis_client(config)
-        except RedisConfigError as e:
-            raise Exception(f"Redis config error: {e}")
+        except RedisConfigError:
+            # Redis not configured, return None (no cached chat ID)
+            debug_log(config, f"Lark chat ID caching disabled - Redis not configured")
+            return None
         return client.get(key)
 
     def get_tenant_access_token(self, config, app_id, app_secret):
