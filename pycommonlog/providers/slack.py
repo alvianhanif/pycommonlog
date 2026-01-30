@@ -57,9 +57,10 @@ class SlackProvider(Provider):
     def _send_slack_webclient(self, formatted_message, config):
         debug_log(config, "send_slack_webclient: preparing API request")
         # Use slack_token if available, otherwise fall back to token
-        token = config.token
-        if config.slack_token:
-            token = config.slack_token
+        token = config.provider_config.get("token", "")
+        slack_token = config.provider_config.get("slack_token", "")
+        if slack_token:
+            token = slack_token
             debug_log(config, "send_slack_webclient: using slack_token")
         else:
             debug_log(config, "send_slack_webclient: using token")
@@ -80,7 +81,7 @@ class SlackProvider(Provider):
     def _send_slack_webhook(self, formatted_message, config):
         debug_log(config, "send_slack_webhook: preparing webhook request")
         # For webhook, the token field contains the webhook URL
-        webhook_url = config.token
+        webhook_url = config.provider_config.get("token", "")
         if not webhook_url:
             error_msg = "Webhook URL is required for Slack webhook method"
             debug_log(config, f"Error: {error_msg}")

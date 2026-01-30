@@ -189,12 +189,13 @@ class LarkProvider(Provider):
 
     def _send_lark_webclient(self, title, formatted_message, config):
         debug_log(config, "send_lark_webclient: preparing API request")
-        token = config.token
+        token = config.provider_config.get("token", "")
         
         # Use lark_token if available, otherwise fall back to token parsing
-        if config.lark_token and config.lark_token.app_id and config.lark_token.app_secret:
+        lark_token = config.provider_config.get("lark_token")
+        if lark_token and lark_token.app_id and lark_token.app_secret:
             debug_log(config, "send_lark_webclient: fetching tenant access token using lark_token")
-            token = self.get_tenant_access_token(config, config.lark_token.app_id, config.lark_token.app_secret)
+            token = self.get_tenant_access_token(config, lark_token.app_id, lark_token.app_secret)
             debug_log(config, "send_lark_webclient: tenant access token fetched")
         elif token and len(token) < 100 and "++" in token:
             # If token is in "app_id++app_secret" format, fetch the tenant_access_token

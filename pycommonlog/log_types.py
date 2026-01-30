@@ -49,6 +49,16 @@ class Config:
         self.environment = environment
         self.provider_config = provider_config or {}
         self.debug = debug
+        
+        # Populate provider_config with top-level fields for consistency, only if top-level is set
+        if self.provider:
+            self.provider_config["provider"] = self.provider
+        if self.token:
+            self.provider_config["token"] = self.token
+        if self.slack_token:
+            self.provider_config["slack_token"] = self.slack_token
+        if self.lark_token and (self.lark_token.app_id or self.lark_token.app_secret):
+            self.provider_config["lark_token"] = self.lark_token
 
 class Provider(ABC):
     @abstractmethod

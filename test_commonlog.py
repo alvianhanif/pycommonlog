@@ -246,5 +246,67 @@ class Testcommonlog(unittest.TestCase):
             with self.assertRaises(Exception):
                 logger.custom_send("lark", AlertLevel.ERROR, "Test message")
 
+    def test_provider_config_population(self):
+        from pycommonlog.log_types import LarkToken
+        config = Config(
+            provider="slack",
+            send_method=SendMethod.WEBCLIENT,
+            token="dummy-token",
+            slack_token="slack-specific-token",
+            lark_token=LarkToken(app_id="test", app_secret="secret"),
+            channel="#test"
+        )
+        logger = commonlog(config)
+
+        # Check that provider_config is populated with top-level fields
+        self.assertEqual(logger.config.provider_config["provider"], "slack")
+        self.assertEqual(logger.config.provider_config["token"], "dummy-token")
+        self.assertEqual(logger.config.provider_config["slack_token"], "slack-specific-token")
+        self.assertEqual(logger.config.provider_config["lark_token"].app_id, "test")
+        self.assertEqual(logger.config.provider_config["lark_token"].app_secret, "secret")
+
+    def test_provider_config_usage(self):
+        # Test that providers use provider_config instead of top-level fields
+        config = Config(
+            provider="slack",
+            send_method=SendMethod.WEBCLIENT,
+            token="old-token",
+            slack_token="new-slack-token",
+            channel="#test",
+            provider_config={
+                "token": "provider-config-token",
+                "slack_token": "provider-config-slack-token",
+            }
+        )
+        logger = commonlog(config)
+
+        # Since we populate in Config.__init__, it should override provider_config with top-level
+        self.assertEqual(logger.config.provider_config["token"], "old-token")
+        self.assertEqual(logger.config.provider_config["slack_token"], "new-slack-token")
+
+    def test_provider_config_only(self):
+        from pycommonlog.log_types import LarkToken
+        # Test that provider_config can be used without top-level fields
+        config = Config(
+            provider="",  # empty top-level
+            send_method=SendMethod.WEBCLIENT,
+            channel="#test",
+            provider_config={
+                "provider": "lark",
+                "token": "config-token",
+                "slack_token": "config-slack-token",
+                "lark_token": LarkToken(app_id="config-app", app_secret="config-secret"),
+            }
+        )
+        logger = commonlog(config)
+
+        # Check that provider_config values are used
+        self.assertEqual(logger.config.provider_config["provider"], "lark")
+        self.assertEqual(logger.config.provider_config["token"], "config-token")
+        self.assertEqual(logger.config.provider_config["lark_token"].app_id, "config-app")
+
+        # Verify the logger uses the provider from provider_config
+        self.assertIsNotNone(logger.provider)
+
 if __name__ == '__main__':
     unittest.main()

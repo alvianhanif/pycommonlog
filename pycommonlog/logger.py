@@ -104,15 +104,16 @@ class commonlog:
 
     def __init__(self, config):
         self.config = config
-        if config.provider == "slack":
+        provider_name = config.provider_config.get("provider", "slack")
+        if provider_name == "slack":
             self.provider = SlackProvider()
-        elif config.provider == "lark":
+        elif provider_name == "lark":
             self.provider = LarkProvider()
         else:
-            logging.warning(f"Unknown provider: {config.provider}, defaulting to Slack")
+            logging.warning(f"Unknown provider: {provider_name}, defaulting to Slack")
             self.provider = SlackProvider()
         
-        debug_log(config, f"Created logger with provider: {config.provider}, send method: {config.send_method}, debug: {config.debug}")
+        debug_log(config, f"Created logger with provider: {provider_name}, send method: {config.send_method}, debug: {config.debug}")
 
     def _resolve_channel(self, level):
         if self.config.channel_resolver:
