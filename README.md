@@ -76,8 +76,10 @@ config = Config(
     slack_token="xoxb-your-slack-token",  # for Slack
     lark_token=LarkToken(app_id="your-app-id", app_secret="your-app-secret"),
     channel="your_channel",
-    redis_host="localhost",  # required for Lark
-    redis_port="6379",
+    provider_config={
+        "redis_host": "localhost",  # required for Lark
+        "redis_port": 6379,         # required for Lark
+    }
 )
 ```
 
