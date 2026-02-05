@@ -205,7 +205,7 @@ class LarkProvider(Provider):
         payload = {
             "receive_id": chat_id,
             "msg_type": "post",
-            "content": {
+            "content": json.dumps({
                 "post": {
                     "zh_cn": {
                         "title": title,
@@ -219,7 +219,7 @@ class LarkProvider(Provider):
                         ]
                     }
                 }
-            }
+            })
         }
         debug_log(config, f"send_lark_webclient: sending HTTP request, payload size: {len(str(payload))}, payload: {json.dumps(payload)}")
         
