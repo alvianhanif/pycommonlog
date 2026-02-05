@@ -8,7 +8,7 @@ import threading
 from typing import Dict, Optional, Tuple
 
 from pycommonlog.log_types import SendMethod, Provider, debug_log
-from pycommonlog.providers.redis_client import get_redis_client, RedisConfigError
+from pycommonlog.providers.redis_client import get_redis_client
 from pycommonlog.cache import get_memory_cache
 
 class LarkProvider(Provider):
@@ -31,7 +31,7 @@ class LarkProvider(Provider):
                 expire_seconds = 60
             client.setex(key, expire_seconds, token)
             debug_log(config, f"Lark token cached in Redis for key: {key}")
-        except RedisConfigError:
+        except Exception:
             # Fallback to in-memory cache
             expire_seconds = expire - 600
             if expire_seconds <= 0:
@@ -47,7 +47,7 @@ class LarkProvider(Provider):
             if token:
                 debug_log(config, f"Lark token retrieved from Redis for key: {key}")
             return token
-        except RedisConfigError:
+        except Exception:
             # Fallback to in-memory cache
             token = get_memory_cache().get(key)
             if token:
@@ -60,7 +60,7 @@ class LarkProvider(Provider):
             client = get_redis_client(config)
             client.set(key, chat_id)  # No expiry
             debug_log(config, f"Lark chat ID cached in Redis for key: {key}")
-        except RedisConfigError:
+        except Exception:
             # Fallback to in-memory cache (no expiry for chat IDs)
             get_memory_cache().set(key, chat_id, 86400 * 30)  # 30 days expiry
             debug_log(config, f"Lark chat ID cached in memory for key: {key}")
@@ -73,7 +73,7 @@ class LarkProvider(Provider):
             if chat_id:
                 debug_log(config, f"Lark chat ID retrieved from Redis for key: {key}")
             return chat_id
-        except RedisConfigError:
+        except Exception:
             # Fallback to in-memory cache
             chat_id = get_memory_cache().get(key)
             if chat_id:
