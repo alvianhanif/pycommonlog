@@ -223,7 +223,7 @@ class LarkProvider(Provider):
         }
         debug_log(config, f"send_lark_webclient: sending HTTP request, payload size: {len(str(payload))}, payload: {json.dumps(payload)}")
         
-        response = requests.post(url, headers=headers, json=payload)
+        response = requests.post(url, headers=headers, data=json.dumps(payload))
         debug_log(config, f"send_lark_webclient: response status: {response.status_code}")
         if response.status_code != 200:
             error_msg = f"Lark WebClient response: {response.status_code}"
