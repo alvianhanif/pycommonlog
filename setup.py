@@ -25,7 +25,7 @@ setup(
     name="pycommonlog",
     version=get_latest_git_tag(),
     description="Unified logging and alerting library for Python.",
-    long_description=open("README.md").read(),
+    long_description=open("README.md", encoding="utf-8").read(),
     long_description_content_type="text/markdown",
     author="Alvian Rahman Hanif",
     author_email="alvian.hanif@pasarpolis.com",

@@ -151,7 +151,7 @@ class Testcommonlog(unittest.TestCase):
         )
         logger = commonlog(config)
         # Mock the LarkProvider.send method to avoid Redis connection
-        with patch('providers.LarkProvider.send') as mock_send:
+        with patch('pycommonlog.providers.LarkProvider.send') as mock_send:
             logger.custom_send("lark", AlertLevel.ERROR, "Custom provider test")
             mock_send.assert_called_once()
 
@@ -164,12 +164,12 @@ class Testcommonlog(unittest.TestCase):
         )
         logger = commonlog(config)
         # Should default to Slack for unknown provider without raising exception
-        with patch('providers.SlackProvider.send') as mock_send:
+        with patch('pycommonlog.providers.SlackProvider.send') as mock_send:
             logger.custom_send("unknown", AlertLevel.ERROR, "Unknown provider test")
             mock_send.assert_called_once()
 
     def test_resolve_channel_with_resolver(self):
-        from log_types import DefaultChannelResolver
+        from pycommonlog.log_types import DefaultChannelResolver
         resolver = DefaultChannelResolver(
             channel_map={AlertLevel.ERROR: "#errors", AlertLevel.WARN: "#warnings"},
             default_channel="#general"
@@ -242,7 +242,7 @@ class Testcommonlog(unittest.TestCase):
         )
         logger = commonlog(config)
         # Mock the provider to raise an exception
-        with patch('providers.LarkProvider.send', side_effect=Exception("Test error")):
+        with patch('pycommonlog.providers.LarkProvider.send', side_effect=Exception("Test error")):
             with self.assertRaises(Exception):
                 logger.custom_send("lark", AlertLevel.ERROR, "Test message")
 
