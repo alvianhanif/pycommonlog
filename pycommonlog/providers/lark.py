@@ -175,7 +175,7 @@ class LarkProvider(Provider):
             formatted += f"\n\n**{filename}:**\n```\n{attachment.content}\n```"
         if attachment and attachment.url:
             formatted += f"\n\n**Attachment:** {attachment.url}"
-        return title, json.dumps(formatted)
+        return title, formatted
 
     def _send_lark_webclient(self, title, formatted_message, config):
         debug_log(config, "send_lark_webclient: preparing API request")
