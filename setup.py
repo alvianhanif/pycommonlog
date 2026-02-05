@@ -30,8 +30,11 @@ setup(
     author="Alvian Rahman Hanif",
     author_email="alvian.hanif@pasarpolis.com",
     url="https://github.com/alvianhanif/pycommonlog",
-    packages=["pycommonlog"],
-    install_requires=[],
+    packages=find_packages(),
+    install_requires=["requests"],
+    extras_require={
+        "redis": ["redis>=4.0.0"],
+    },
     license="MIT",
     python_requires=">=3.8",
     classifiers=[
