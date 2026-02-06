@@ -202,27 +202,26 @@ class LarkProvider(Provider):
         
         url = "https://open.larksuite.com/open-apis/im/v1/messages?receive_id_type=chat_id"
         headers = {"Authorization": f"Bearer {token}", "Content-Type": "application/json"}
+
         payload = {
             "receive_id": chat_id,
             "msg_type": "post",
             "content": json.dumps({
-                "post": {
-                    "zh_cn": {
-                        "title": title,
-                        "content": [
-                            [
-                                {
-                                    "tag": "text",
-                                    "text": formatted_message
-                                }
-                            ]
+                "en_us": {
+                    "title": title,
+                    "content": [
+                        [
+                            {
+                                "tag": "text",
+                                "text": formatted_message
+                            }
                         ]
-                    }
+                    ]
                 }
             })
         }
         debug_log(config, f"send_lark_webclient: sending HTTP request, payload size: {len(str(payload))}, payload: {json.dumps(payload)}")
-        
+
         response = requests.post(url, headers=headers, data=json.dumps(payload))
         debug_log(config, f"send_lark_webclient: response status: {response.status_code}")
         if response.status_code != 200:
@@ -241,11 +240,12 @@ class LarkProvider(Provider):
             raise Exception(error_msg)
         
         debug_log(config, "send_lark_webhook: using webhook URL")
+
         payload = {
             "msg_type": "post",
             "content": {
                 "post": {
-                    "zh_cn": {
+                    "en_us": {
                         "title": title,
                         "content": [
                             [
